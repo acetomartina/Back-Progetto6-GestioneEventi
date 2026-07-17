@@ -1,14 +1,20 @@
 package com.martina.gestione_eventi.exceptions;
 
 import com.martina.gestione_eventi.dto.ErroreResponse;
+import com.martina.gestione_eventi.dto.ErroreValidazioneResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GestoreEccezioni {
 
+    // Gestisce il tentativo di registrazione con un'email già presente
     @ExceptionHandler(EmailGiaRegistrataException.class)
     public ResponseEntity<ErroreResponse> gestisciEmailGiaRegistrata(
             EmailGiaRegistrataException exception
@@ -22,6 +28,33 @@ public class GestoreEccezioni {
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    // Gestisce i dati della richiesta che non rispettano le validazioni
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErroreValidazioneResponse> gestisciErroriValidazione(
+            MethodArgumentNotValidException exception
+    ) {
+
+        Map<String, String> erroriCampi = new LinkedHashMap<>();
+
+        exception.getBindingResult()
+                .getFieldErrors()
+                .forEach(errore -> erroriCampi.putIfAbsent(
+                        errore.getField(),
+                        errore.getDefaultMessage()
+                ));
+
+        ErroreValidazioneResponse response =
+                new ErroreValidazioneResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Dati non validi",
+                        erroriCampi
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 }
