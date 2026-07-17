@@ -57,4 +57,21 @@ public class GestoreEccezioni {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
+
+    // Gestisce email o password non corrette durante il login
+    @ExceptionHandler(CredenzialiNonValideException.class)
+    public ResponseEntity<ErroreResponse> gestisciCredenzialiNonValide(
+            CredenzialiNonValideException exception
+    ) {
+
+        ErroreResponse response = new ErroreResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Non autorizzato",
+                exception.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(response);
+    }
 }

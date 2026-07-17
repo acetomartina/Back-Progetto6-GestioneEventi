@@ -14,20 +14,18 @@ public class SecurityConfig {
             throws Exception {
 
         http
-                // Disabilitato perché stiamo costruendo una REST API
-                // che utilizzerà l'autenticazione tramite JWT
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // La registrazione deve essere accessibile
-                        // anche agli utenti non autenticati
+                        // Registrazione e login sono accessibili senza token
                         .requestMatchers(
                                 HttpMethod.POST,
-                                "/api/auth/register"
+                                "/api/auth/register",
+                                "/api/auth/login"
                         ).permitAll()
 
-                        // Tutti gli altri endpoint richiedono autenticazione
+                        // Tutti gli altri endpoint restano protetti
                         .anyRequest().authenticated()
                 );
 

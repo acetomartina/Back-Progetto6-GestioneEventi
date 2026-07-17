@@ -1,8 +1,11 @@
 package com.martina.gestione_eventi.controllers;
 
+import com.martina.gestione_eventi.dto.LoginRequest;
+import com.martina.gestione_eventi.dto.LoginResponse;
 import com.martina.gestione_eventi.dto.RegistrazioneUtenteRequest;
 import com.martina.gestione_eventi.dto.RegistrazioneUtenteResponse;
 import com.martina.gestione_eventi.entities.Utente;
+import com.martina.gestione_eventi.services.AutenticazioneService;
 import com.martina.gestione_eventi.services.UtenteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,16 +19,16 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UtenteService utenteService;
+    private final AutenticazioneService autenticazioneService;
 
     @PostMapping("/register")
     public ResponseEntity<RegistrazioneUtenteResponse> registraUtente(
             @Valid @RequestBody RegistrazioneUtenteRequest request
     ) {
 
-        // Registra e salva il nuovo utente
-        Utente utenteRegistrato = utenteService.registraUtente(request);
+        Utente utenteRegistrato =
+                utenteService.registraUtente(request);
 
-        // Restituisce i dati dell'utente senza mostrare la password
         RegistrazioneUtenteResponse response =
                 new RegistrazioneUtenteResponse(
                         utenteRegistrato.getId(),
@@ -38,5 +41,16 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @Valid @RequestBody LoginRequest request
+    ) {
+
+        LoginResponse response =
+                autenticazioneService.login(request);
+
+        return ResponseEntity.ok(response);
     }
 }
