@@ -34,3 +34,5 @@ build/
 
 # Credenziali locali
 env.properties
+
+.DS_Store
