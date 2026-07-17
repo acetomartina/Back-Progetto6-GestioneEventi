@@ -102,4 +102,19 @@ public class GestoreEccezioni {
                         exception.getMessage()
                 ));
     }
+
+    @ExceptionHandler(PrenotazioneNonDisponibileException.class)
+    public ResponseEntity<ErroreResponse>
+    gestisciPrenotazioneNonDisponibile(
+            PrenotazioneNonDisponibileException exception
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErroreResponse(
+                        409,
+                        "Prenotazione non disponibile",
+                        exception.getMessage()
+                ));
+    }
 }

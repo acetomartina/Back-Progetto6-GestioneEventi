@@ -21,32 +21,62 @@ public class SecurityConfig {
             throws Exception {
 
         http
-                // Le REST API con JWT non utilizzano il token CSRF
+                // La REST API utilizza JWT e non sessioni tradizionali
                 .csrf(csrf -> csrf.disable())
 
-                // Ogni richiesta viene autenticata tramite JWT:
-                // non salviamo l'utente in una sessione
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        )
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // Registrazione e login sono pubblici
+                        // Registrazione e login pubblici
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/auth/register",
                                 "/api/auth/login"
                         ).permitAll()
 
-                        // Tutti gli altri endpoint richiedono un JWT valido
+                        // Solo gli organizzatori possono vedere i propri eventi
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/eventi/miei"
+                        ).hasRole("ORGANIZER")
+
+                        // Solo gli organizzatori possono creare eventi
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/eventi"
+                        ).hasRole("ORGANIZER")
+
+                        // Solo gli organizzatori possono modificare eventi
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/eventi/**"
+                        ).hasRole("ORGANIZER")
+
+                        // Solo gli organizzatori possono eliminare eventi
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/eventi/**"
+                        ).hasRole("ORGANIZER")
+
+                        // Solo gli utenti possono gestire prenotazioni
+                        .requestMatchers(
+                                "/api/prenotazioni/**"
+                        ).hasRole("USER")
+
+                        // Gli utenti autenticati possono consultare gli eventi
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/eventi/**"
+                        ).authenticated()
+
+                        // Qualsiasi altro endpoint richiede autenticazione
                         .anyRequest().authenticated()
                 )
 
-                // Legge il JWT prima del normale filtro
-                // di autenticazione username/password
+                // Controlla il JWT prima del filtro standard di Spring
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
