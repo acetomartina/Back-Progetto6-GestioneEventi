@@ -6,6 +6,7 @@ import com.martina.gestione_eventi.repositories.UtenteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.martina.gestione_eventi.exceptions.EmailGiaRegistrataException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class UtenteService {
 
         // Impediamo la registrazione della stessa email più volte
         if (utenteRepository.existsByEmail(emailNormalizzata)) {
-            throw new IllegalArgumentException("Email già registrata");
+            throw new EmailGiaRegistrataException("Email già registrata");
         }
 
         Utente utente = new Utente();
