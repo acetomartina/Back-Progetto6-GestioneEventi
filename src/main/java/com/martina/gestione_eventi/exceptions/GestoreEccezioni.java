@@ -74,4 +74,47 @@ public class GestoreEccezioni {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(response);
     }
+
+    @ExceptionHandler(RisorsaNonTrovataException.class)
+    public ResponseEntity<ErroreResponse> gestisciRisorsaNonTrovata(
+            RisorsaNonTrovataException exception
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErroreResponse(
+                        404,
+                        "Risorsa non trovata",
+                        exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(OperazioneNonConsentitaException.class)
+    public ResponseEntity<ErroreResponse> gestisciOperazioneNonConsentita(
+            OperazioneNonConsentitaException exception
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErroreResponse(
+                        403,
+                        "Operazione non consentita",
+                        exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(PrenotazioneNonDisponibileException.class)
+    public ResponseEntity<ErroreResponse>
+    gestisciPrenotazioneNonDisponibile(
+            PrenotazioneNonDisponibileException exception
+    ) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErroreResponse(
+                        409,
+                        "Prenotazione non disponibile",
+                        exception.getMessage()
+                ));
+    }
 }
